@@ -11,13 +11,6 @@ import Foundation
 var args = ProcessInfo.processInfo.arguments
 args.removeFirst() // remove the name of the program
 
-//args = ["4", "+", "3", "x", "2"]
-//args = ["54", "-", "99"]
-//args = ["-40"]
-//args = ["x"]
-//args = ["12", "+"]
-args = ["41", "x", "43", "+", "48"]
-
 do {
     let calc = try Calculator(inputArray: args)
     print(try calc.calculate())

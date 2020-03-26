@@ -8,27 +8,12 @@
 
 import Foundation
 
-enum ErrorHandler: Error {
-    enum InputError: Error {
-        case inputIsEmpty
-        case endedWithOperator(operator: String)
-        case missedOperator(at: Int, operator: String)
-        case missedNumber(at: Int, operator: String)
-        case invalidOperator(operator: String)
-        case invalidNumber(number: String)
-    }
-    
-    enum OperationError: Error {
-        case divisionByZero
-    }
-}
-
 class Calculator {
-    private let parser: Parser
+    private let inputValidator: InputValidator
     
     init(inputArray: [String]) throws {
         do {
-            parser = try Parser(inputArray: inputArray)
+            inputValidator = try InputValidator(inputArray: inputArray)
         } catch {
             throw error
         }
@@ -50,12 +35,16 @@ class Calculator {
     }
     
     func div(a: Int, b: Int) throws -> Int {
-        if b == 0 { throw ErrorHandler.OperationError.divisionByZero }
+        if b == 0 {
+            throw ErrorHandler.OperationError.divisionByZero
+        }
         return a / b
     }
     
     func mod(a: Int, b: Int) throws -> Int {
-        if b == 0 { throw ErrorHandler.OperationError.divisionByZero }
+        if b == 0 {
+            throw ErrorHandler.OperationError.divisionByZero
+        }
         return a % b
     }
     
@@ -92,9 +81,12 @@ class Calculator {
     }
     
     public func calculate() throws -> Int {
+        // The function iterates through all atoms and
+        // creates arrays of numbers and operators.
+        // It calculates high priority
         var oprs = [String]()
         var nums = [Int]()
-        let atoms = parser.getAtoms()
+        let atoms = inputValidator.getAtoms()
         
         var iter: Int = 0
         while iter < atoms.count {
@@ -110,14 +102,17 @@ class Calculator {
                         nums[nums.count-1] = try highPriorityOperation(a: nums[nums.count-1],
                                                                        o: oprs[oprs.count-1],
                                                                        b: Int(atoms[iter+1])!)
+                        oprs.removeLast()
                     } catch {
                         throw error
                     }
                     iter += 2
-                 }
+                }
             }
         }
         
+        // Deals with rest low priority atoms by
+        // summarising or subtracting with the first element
         if nums.count > 1 {
             iter = 1
             while iter < nums.count {
@@ -126,7 +121,7 @@ class Calculator {
                 iter += 1
             }
         }
-        
+
         return nums[0]
     }
 }

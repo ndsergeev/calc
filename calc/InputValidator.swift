@@ -1,5 +1,5 @@
 //
-//  Parser.swift
+//  InputValidator.swift
 //  calc
 //
 //  Created by Nikita Sergeev on 24/3/20.
@@ -8,6 +8,9 @@
 
 import Foundation
 
+//
+// Extension of String for some minor convinience
+//
 extension String {
     var isNumber: Bool {
         var str = self
@@ -33,12 +36,12 @@ extension String {
 }
 
 //
-//
 // Class extracts information from receiving
 // input and analyses its correctness
 //
-//
-class Parser {
+class InputValidator {
+    // An atom is a number or string of contiguous characters in Lisp
+    // It includes numbers and special characters.
     private var atoms = [String]()
     
     init(inputArray: [String]) throws {
@@ -78,9 +81,12 @@ class Parser {
                 }
             }
             
+            // it is separate because it might be inefficient to check it each counter % 2 != 0
+            // in case there are many atoms
             if inputArray[inputArray.count-1].isOperator {
                 throw ErrorHandler.InputError.endedWithOperator(operator: inputArray[inputArray.count-1])
             }
+            
             counter += 1
         }
         return true
